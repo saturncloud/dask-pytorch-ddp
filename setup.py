@@ -7,12 +7,13 @@ with open("README.md", "r") as f:
 with open("VERSION", "r") as f:
     version = f.read().strip()
 
-# prefect has to be 0.13.0 or newer to get Webhook storage
-install_requires = ["cloudpickle", "dask-saturn>=0.0.4", "prefect>0.13.0", "requests"]
-testing_deps = ["pytest", "pytest-cov", "responses"]
+
+install_requires = ["dask", "distributed", "torch"]
+testing_deps = ["black", "pytest", "pytest-cov"]
+
 
 setup(
-    name="prefect-saturn",
+    name="dask-pytorch",
     version=version,
     maintainer="Saturn Cloud Developers",
     maintainer_email="open-source@saturncloud.io",
@@ -29,15 +30,15 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    keywords="saturn cloud prefect prefect",
-    description="Client library for running Prefect Cloud flows in Saturn Cloud",
+    keywords="saturn cloud dask pytorch torch",
+    description="library for setting up torch DDP on a dask cluster",
     long_description=readme,
     long_description_content_type="text/markdown",
     url="https://saturncloud.io/",
     project_urls={
         "Documentation": "http://docs.saturncloud.io",
-        "Source": "https://github.com/saturncloud/prefect-saturn",
-        "Issue Tracker": "https://github.com/saturncloud/prefect-saturn/issues",
+        "Source": "https://github.com/saturncloud/dask-pytorch",
+        "Issue Tracker": "https://github.com/saturncloud/dask-pytorch/issues",
     },
     packages=find_packages(),
     install_requires=install_requires,
