@@ -5,19 +5,19 @@ from dask_pytorch.dispatch import run, dispatch_with_ddp
 import dask.distributed
 
 
-workers = {"tcp://1.2.3.4:8786": {"host": "1.2.3.4"},
-           "tcp://2.2.3.4:8786": {"host": "2.2.3.4"},
-           "tcp://3.2.3.4:8786": {"host": "3.2.3.4"},
-           "tcp://4.2.3.4:8786": {"host": "4.2.3.4"}}
+workers = {
+    "tcp://1.2.3.4:8786": {"host": "1.2.3.4"},
+    "tcp://2.2.3.4:8786": {"host": "2.2.3.4"},
+    "tcp://3.2.3.4:8786": {"host": "3.2.3.4"},
+    "tcp://4.2.3.4:8786": {"host": "4.2.3.4"},
+}
 host_name = sorted(workers.keys())[0]
-host = workers[host_name]['host']
+host = workers[host_name]["host"]
 
 
 def test_run():
     client = Mock()
-    client.scheduler_info = Mock(
-        return_value={"workers": workers}
-    )
+    client.scheduler_info = Mock(return_value={"workers": workers})
 
     fake_pytorch_func = Mock()
 
@@ -34,45 +34,23 @@ def test_run():
         output = run(client, fake_pytorch_func)
 
     client.submit.assert_any_call(
-        dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        0,
-        len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 0, len(workers)
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        1,
-        len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 1, len(workers)
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        2,
-        len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 2, len(workers)
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        3,
-        len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 3, len(workers)
     )
     assert output == [x.result() for x in fake_results]
 
 
 def test_run_async():
     client = Mock()
-    client.scheduler_info = Mock(
-        return_value={"workers": workers}
-    )
+    client.scheduler_info = Mock(return_value={"workers": workers})
 
     fake_pytorch_func = Mock()
 
@@ -97,28 +75,13 @@ def test_run_async():
         len(workers),
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        1,
-        len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 1, len(workers)
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        2,
-        len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 2, len(workers)
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        3,
-        len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 3, len(workers)
     )
     assert output == fake_results
 
@@ -126,8 +89,10 @@ def test_run_async():
 def test_dispatch_with_ddp():
     pytorch_func = Mock()
 
-    with patch.object(os, "environ", {}) as environ, patch("dask_pytorch.dispatch.dist", return_value=Mock()) as dist:
-        dispatch_with_ddp(pytorch_func, "master_addr", 2343, 1, 10, 'a', 'b', foo='bar')
+    with patch.object(os, "environ", {}) as environ, patch(
+        "dask_pytorch.dispatch.dist", return_value=Mock()
+    ) as dist:
+        dispatch_with_ddp(pytorch_func, "master_addr", 2343, 1, 10, "a", "b", foo="bar")
         assert environ["MASTER_ADDR"] == "master_addr"
         assert environ["MASTER_PORT"] == "2343"
         assert environ["RANK"] == "1"
@@ -136,4 +101,4 @@ def test_dispatch_with_ddp():
         dist.init_process_group.assert_called()
         dist.destroy_process_group.assert_called()
 
-        pytorch_func.assert_called_once_with('a', 'b', foo='bar')
+        pytorch_func.assert_called_once_with("a", "b", foo="bar")

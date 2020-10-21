@@ -32,3 +32,7 @@ unit-tests:
 
 .PHONY: test
 test: clean lint unit-tests
+
+.PHONY: format
+	@echo -e '\n\nCheck formatting with Black...'
+	black --line-length 100 --exclude '/(\.vscode|node_modules)/' .
