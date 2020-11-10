@@ -54,7 +54,7 @@ class DaskResultsHandler:
 
             for fut in result.done:
                 try:
-                    r = fut.result()
+                    fut.result()
                 except Exception as e:  # pylint: disable=broad-except
                     if raise_errors:
                         raise

@@ -28,7 +28,7 @@ lint:
 unit-tests:
 	pip uninstall -y dask-pytorch
 	python setup.py develop
-	pytest --cov=dask_pytorch --cov-fail-under=80 tests/
+	pytest --cov=dask_pytorch tests/
 
 .PHONY: test
 test: clean lint unit-tests
