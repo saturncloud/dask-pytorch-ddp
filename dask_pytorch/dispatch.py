@@ -1,11 +1,18 @@
+"""
+This module contains the user-facing API to submit PyTorch jobs to a Dask cluster
+"""
+
 import os
-from typing import List, Callable
-from dask.distributed import as_completed
+from typing import List, Callable, Tuple
 from dask.distributed import Client
 import torch.distributed as dist
 
 
-def get_worker_info(client: Client) -> List[str]:
+def get_worker_info(client: Client) -> Tuple[List[str], str]:
+    """
+    returns a list of workers (sorted), and the DNS name for the master host
+    The master is the 0th worker's host
+    """
     workers = client.scheduler_info()["workers"]
     worker_keys = sorted(workers.keys())
     host = workers[worker_keys[0]]["host"]
@@ -13,33 +20,39 @@ def get_worker_info(client: Client) -> List[str]:
 
 
 def run(client: Client, pytorch_function: Callable, *args, **kwargs):
-    sync = kwargs.pop("sync", True)
+    """
+    Dispatch a pytorch function over a dask cluster, and returns a list of futures
+    for the resulting tasks
+    """
     worker_keys, host = get_worker_info(client)
     world_size = len(worker_keys)
-    port = 23456  # TODO somehow pick a free port?
+    port = 23456  # pick a free port?
 
     index_to_fut = {}
     for idx, w in enumerate(worker_keys):
         fut = client.submit(
-            dispatch_with_ddp, pytorch_function, host, port, idx, world_size, *args, **kwargs
+            dispatch_with_ddp,
+            pytorch_function,
+            host,
+            port,
+            idx,
+            world_size,
+            *args,
+            workers=[w],
+            **kwargs
         )
         index_to_fut[idx] = fut
 
-    if not sync:
-        return [index_to_fut[x] for x in range(len(worker_keys))]
-
-    fut_to_result = {}
-
-    for fut in as_completed(index_to_fut.values()):
-        result = fut.result()
-        fut_to_result[fut] = result
-
-    return [fut_to_result[index_to_fut[x]] for x in range(len(worker_keys))]
+    return [index_to_fut[x] for x in range(len(worker_keys))]
 
 
 def dispatch_with_ddp(
     pytorch_function, master_addr, master_port, rank, world_size, *args, **kwargs
 ):
+    """
+    runs a pytorch function, setting up torch.distributed before execution
+    and tearing it down afterwards.
+    """
     # These are the parameters used to initialize the process group
     master_addr = str(master_addr)
     master_port = str(master_port)

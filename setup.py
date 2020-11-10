@@ -8,8 +8,8 @@ with open("VERSION", "r") as f:
     version = f.read().strip()
 
 
-install_requires = ["dask", "distributed", "torch"]
-testing_deps = ["black", "pytest", "pytest-cov"]
+install_requires = ["dask", "distributed", "torch", "pillow"]
+testing_deps = ["black", "pytest", "pytest-cov", "flake8", "mypy"]
 
 
 setup(

@@ -2,7 +2,6 @@ import os
 from unittest.mock import Mock, patch
 
 from dask_pytorch.dispatch import run, dispatch_with_ddp
-import dask.distributed
 
 
 workers = {
@@ -22,66 +21,26 @@ def test_run():
     fake_pytorch_func = Mock()
 
     fake_results = []
-    for idx, worker in enumerate(sorted(workers.keys())):
+    worker_keys = sorted(workers.keys())
+    for idx, worker in enumerate(worker_keys):
         r = Mock()
         r.result = Mock(return_value=idx)
         fake_results.append(r)
 
     client.submit = Mock(side_effect=fake_results)
-
-    with patch("dask_pytorch.dispatch.as_completed", return_value=fake_results) as as_completed:
-        as_completed.return_value = fake_results
-        output = run(client, fake_pytorch_func)
+    output = run(client, fake_pytorch_func)
 
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 0, len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 0, len(workers), workers=[worker_keys[0]]
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 1, len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 1, len(workers), workers=[worker_keys[1]]
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 2, len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 2, len(workers), workers=[worker_keys[2]]
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 3, len(workers)
-    )
-    assert output == [x.result() for x in fake_results]
-
-
-def test_run_async():
-    client = Mock()
-    client.scheduler_info = Mock(return_value={"workers": workers})
-
-    fake_pytorch_func = Mock()
-
-    fake_results = []
-    for idx, worker in enumerate(sorted(workers.keys())):
-        r = Mock()
-        r.result = Mock(return_value=idx)
-        fake_results.append(r)
-
-    client.submit = Mock(side_effect=fake_results)
-
-    with patch("dask_pytorch.dispatch.as_completed", return_value=fake_results) as as_completed:
-        as_completed.return_value = fake_results
-        output = run(client, fake_pytorch_func, sync=False)
-
-    client.submit.assert_any_call(
-        dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        0,
-        len(workers),
-    )
-    client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 1, len(workers)
-    )
-    client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 2, len(workers)
-    )
-    client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 3, len(workers)
+        dispatch_with_ddp, fake_pytorch_func, host, 23456, 3, len(workers), workers=[worker_keys[3]]
     )
     assert output == fake_results
 
