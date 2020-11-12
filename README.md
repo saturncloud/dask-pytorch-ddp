@@ -7,6 +7,8 @@
 - Implementations of common PyTorch datasets on distributed data stores (like S3)
 - mechanisms for tracking and logging intermediate results, training statistics, and checkpoints.
 
+At this point, this library and examples provided are tailored to computer vision tasks, but this library is intended to be useful for any sort of PyTorch tasks. The only thing really specific to image processing is the `S3ImageFolder` dataset class. Implementing a PyTorch dataset (assuming map style random access) outside of images currently requires implementing `__getitem__(self, idx: number):` and `__len__(self):` We plan to add more varied examples for other use cases in the future, and welcome PRs extending functionality.
+
 ## Typical non-dask workflow
 
 A typical example of non-dask PyTorch usage is as follows:

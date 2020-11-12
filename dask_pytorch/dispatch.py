@@ -47,7 +47,7 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
 
 
 def dispatch_with_ddp(
-    pytorch_function, master_addr, master_port, rank, world_size, *args, **kwargs
+    pytorch_function, master_addr, master_port, rank, world_size, backend = "nccl", *args, **kwargs
 ):
     """
     runs a pytorch function, setting up torch.distributed before execution
@@ -65,7 +65,7 @@ def dispatch_with_ddp(
     os.environ["WORLD_SIZE"] = world_size
 
     try:
-        dist.init_process_group(backend="nccl")
+        dist.init_process_group(backend=backend)
         val = pytorch_function(*args, **kwargs)
     finally:
         dist.destroy_process_group()
