@@ -8,7 +8,7 @@ from dask.distributed import Client
 import torch.distributed as dist
 
 
-def get_worker_info(client: Client) -> Tuple[List[str], str]:
+def _get_worker_info(client: Client) -> Tuple[List[str], str]:
     """
     returns a list of workers (sorted), and the DNS name for the master host
     The master is the 0th worker's host
@@ -24,13 +24,12 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
     Dispatch a pytorch function over a dask cluster, and returns a list of futures
     for the resulting tasks
     """
-    worker_keys, host = get_worker_info(client)
+    worker_keys, host = _get_worker_info(client)
     world_size = len(worker_keys)
     port = 23456  # pick a free port?
 
-    index_to_fut = {}
-    for idx, w in enumerate(worker_keys):
-        fut = client.submit(
+    futures = [
+        client.submit(
             dispatch_with_ddp,
             pytorch_function,
             host,
@@ -41,9 +40,10 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
             workers=[w],
             **kwargs
         )
-        index_to_fut[idx] = fut
-
-    return [index_to_fut[x] for x in range(len(worker_keys))]
+        for idx, w in enumerate(worker_keys)
+    ]
+    
+    return futures
 
 
 def dispatch_with_ddp(

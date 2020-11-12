@@ -25,7 +25,7 @@ NOTE: If you have previously `pip install`'d `dask-pytorch`, some steps in this 
 
 ## Testing
 
-Every commit to this repository is tested automatically using continuous integration (CI). All CI checks must pass to for a pull request to be accepted.
+Every commit to this repository is tested automatically using continuous integration (CI). All CI checks must pass for a pull request to be accepted.
 
 To try running the tests locally, run the following:
 
@@ -48,7 +48,7 @@ make lint
 
 ### Unit tests
 
-Unit tests for the project use `pytest`, `pytest-cov`, and `responses`. All tests are stored in the `tests/` directory.
+Unit tests for the project use `pytest` and `pytest-cov`. All tests are stored in the `tests/` directory.
 
 ```shell
 make unit-tests

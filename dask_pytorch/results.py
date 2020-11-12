@@ -10,7 +10,7 @@ from typing import List
 from os.path import join, exists, dirname
 
 from distributed.pubsub import Pub, Sub
-from distributed.utils import TimeoutError  # pylint: disable=redefined-builtin
+from distributed.utils import TimeoutError as DistributedTimeoutError
 from distributed.client import wait, FIRST_COMPLETED, Future
 
 
@@ -37,7 +37,7 @@ class DaskResultsHandler:
         while True:
             try:
                 yield sub.get(timeout=1.0)
-            except TimeoutError:
+            except DistributedTimeoutError:
                 break
 
     def _get_results(self, futures: List[Future], raise_errors: bool = True):
@@ -49,16 +49,16 @@ class DaskResultsHandler:
                 break
             try:
                 result = wait(futures, 0.1, FIRST_COMPLETED)
-            except TimeoutError:
+            except DistributedTimeoutError:
                 continue
 
             for fut in result.done:
                 try:
                     fut.result()
                 except Exception as e:  # pylint: disable=broad-except
+                    logging.exception(e)
                     if raise_errors:
                         raise
-                    logging.exception(e)
             futures = result.not_done
 
     def process_results(self, prefix: str, futures: List[Future], raise_errors: bool = True):
@@ -85,7 +85,7 @@ class DaskResultsHandler:
     def submit_result(self, path: str, data: str):
         """
         To be used in jobs.  Call this function with a path, and some data.
-        Client will write {data} to a file at  {path}
+        Client will write {data} to a file at {path}
         """
         pub = Pub(self.pub_sub_key)
         pub.put({"path": path, "data": data})

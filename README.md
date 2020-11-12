@@ -12,7 +12,7 @@
 A typical example of non-dask PyTorch usage is as follows:
 
 ### Loading Data
-Create an dataset (ImageFolder), and wrap it in a DataLoader
+Create an dataset (`ImageFolder`), and wrap it in a `DataLoader`
 
 ```python
 transform = transforms.Compose([
@@ -66,15 +66,15 @@ for epoch in range(n_epochs):
 
 ## Now on Dask
 
-with dask_pytorch and pytorch distributed data parallel, we can train on multiple workers as follows:
+with dask_pytorch and PyTorch distributed data parallel, we can train on multiple workers as follows:
 
 ### Loading Data
 Load the dataset from S3, and explicitly set the multiprocessing context (Dask defaults to spawn, but pytorch is generally configured to use fork)
 
 ```python
-from dask_pytorch.data import BOTOS3ImageFolder
+from dask_pytorch.data import S3ImageFolder
 
-whole_dataset = BOTOS3ImageFolder(bucket, prefix, transform=transform)
+whole_dataset = S3ImageFolder(bucket, prefix, transform=transform)
 train_loader = torch.utils.data.DataLoader(
     whole_dataset, sampler=train_sampler, batch_size=batch_size, num_workers=num_workers, multiprocessing_context=mp.get_context('fork')
 )
@@ -106,7 +106,11 @@ def run_transfer_learning(bucket, prefix, samplesize, n_epochs):
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
     whole_dataset = BOTOS3ImageFolder(bucket, prefix, transform=transform)
     train_loader = torch.utils.data.DataLoader(
-        whole_dataset, sampler=train_sampler, batch_size=batch_size, num_workers=num_workers, multiprocessing_context=mp.get_context('fork')
+        whole_dataset,
+        sampler=train_sampler,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        multiprocessing_context=mp.get_context('fork')
     )
     count = 0
     for epoch in range(n_epochs):
@@ -138,20 +142,20 @@ def run_transfer_learning(bucket, prefix, samplesize, n_epochs):
 
 ## How does it work?
 
-`dask-pytorch` is largely a wrapper around existing `pytorch` functionality.  `pytorch.distributed` provides infrastructure for [Distributed Data Parallel](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html).
+`dask-pytorch` is largely a wrapper around existing `pytorch` functionality.  `pytorch.distributed` provides infrastructure for [Distributed Data Parallel](https://pytorch.org/tutorials/intermediate/ddp_tutorial.html) (DDP).
 
 In DDP, you create N workers, and the 0th worker is the "master", and coordinates the synchronization of buffers and gradients.  In SGD, gradients are normally averaged between all data points in a batch.  By running batches on multiple workers, and averaging the gradients, DDP enables you to run SGD with a much bigger batch size `(N * batch_size)`
 
-In PyTorch, you set some environment variables to configure the "master" host and port, and then you call `init_process_group` before you start training, and `destroy_process_group` when you are done training.  `dask-pytorch` handles this for you by designating 1 dask worker as the master pytorch worker, and calling `init_process_group` and `desetroy_process_group` around the training function that you provide.
+In PyTorch, you set some environment variables to configure the "master" host and port, and then you call `init_process_group` before you start training, and `destroy_process_group` when you are done training.  `dask-pytorch` handles this for you by designating 1 dask worker as the master pytorch worker, and calling `init_process_group` and `destroy_process_group` around the training function that you provide.
 
 ### Multi GPU machines
 `dask_cuda_worker` automatically rotates `CUDA_VISIBLE_DEVICES` for each worker it creates (typically one per GPU).  As a result, your PyTorch code should always start with the 0th GPU.
 
-For example, if I have an 8 GPU machine, the 3rd worker will have CUDA_VISIBLE_DEVICES set to `2,3,4,5,6,7,0,1`.  On that worker, if I call `torch.device(0)`, I will get GPU 2.
+For example, if I have an 8 GPU machine, the 3rd worker will have `CUDA_VISIBLE_DEVICES` set to `2,3,4,5,6,7,0,1`.  On that worker, if I call `torch.device(0)`, I will get GPU 2.
 
 ## What else?
 
-`dask-pytorch` also implements an S3 based ImageFolder.  More distributed friendly datasets are planned.  `dask-pytorch`  Also implements a basic results aggregation framework so that it is easy to collect training metrics across different workers.  Currently, only `DaskResultsHandler` which leverages `dask` pub sub communication protocols is implemented, but an S3 based result handler is planned.
+`dask-pytorch` also implements an S3 based `ImageFolder`.  More distributed friendly datasets are planned.  `dask-pytorch`  Also implements a basic results aggregation framework so that it is easy to collect training metrics across different workers.  Currently, only `DaskResultsHandler` which leverages `dask` pub sub communication protocols is implemented, but an S3 based result handler is planned.
 
 ## Some Notes
 

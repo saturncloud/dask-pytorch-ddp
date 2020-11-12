@@ -12,13 +12,13 @@ from torch.utils.data import Dataset
 
 """
 In the following, we are explicitly avoiding s3fs because it does not behave well with
-multiprocessing (which is commonly used in PyTorch dataloaders
+multiprocessing (which is commonly used in PyTorch dataloaders).
 
 https://github.com/dask/s3fs/issues/369
 """  # pylint: disable=pointless-string-statement
 
 
-def get_all_files(bucket: str, prefix: str, s3_client=None):
+def _list_all_files(bucket: str, prefix: str, s3_client=None) -> List[str]:
     """
     Get list of all files from an s3 bucket matching a certain prefix
     """
@@ -34,9 +34,9 @@ def get_all_files(bucket: str, prefix: str, s3_client=None):
     return all_files
 
 
-def read_s3_fileobj(bucket, path, fileobj):
+def _read_s3_fileobj(bucket, path, fileobj):
     """
-    read an obj from s3 (in a bucket a a certain path) to a file like object
+    read an obj from s3 to a file like object
     """
     import boto3  # pylint: disable=import-outside-toplevel
 
@@ -47,22 +47,22 @@ def read_s3_fileobj(bucket, path, fileobj):
     return fileobj
 
 
-def load_image_obj(fileobj):
+def _load_image_obj(fileobj):
     """
     turn a file like object into an image
     """
     return Image.open(fileobj).convert("RGB")
 
 
-class BOTOS3ImageFolder(Dataset):
+class S3ImageFolder(Dataset):
     """
     An image folder that lives in S3.  Directories containing the image are classes.
     """
 
-    def __init__(self, s3_bucket, s3_prefix, transform=None, target_transform=None):
+    def __init__(self, s3_bucket: str, s3_prefix: str, transform: Optional[Callable] = None, target_transform: Optional[Callable] = None):
         self.s3_bucket = s3_bucket
         self.s3_prefix = s3_prefix
-        self.all_files = get_all_files(s3_bucket, s3_prefix)
+        self.all_files = _list_all_files(s3_bucket, s3_prefix)
         self.classes = sorted({self.get_class(x) for x in self.all_files})
         self.class_to_idx = {k: idx for idx, k in enumerate(self.classes)}
         self.transform = transform
@@ -82,8 +82,8 @@ class BOTOS3ImageFolder(Dataset):
         path = self.all_files[idx]
         label = self.class_to_idx[self.get_class(path)]
         with tempfile.TemporaryFile() as f:
-            f = read_s3_fileobj(self.s3_bucket, path, f)
-            img = load_image_obj(f)
+            f = _read_s3_fileobj(self.s3_bucket, path, f)
+            img = _load_image_obj(f)
         if self.transform is not None:
             img = self.transform(img)
         if self.target_transform is not None:
