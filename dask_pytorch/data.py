@@ -5,7 +5,7 @@ Utilities for loading PyTorch data in distributed environments
 
 import tempfile
 from os.path import basename, dirname
-
+from typing import List, Callable, Optional
 from PIL import Image
 from torch.utils.data import Dataset
 
