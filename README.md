@@ -2,12 +2,12 @@
 
 <!-- ![GitHub Actions](https://github.com/saturncloud/dask-pytorch/workflows/GitHub%20Actions/badge.svg) [![PyPI Version](https://img.shields.io/pypi/v/prefect-saturn.svg)](https://pypi.org/project/prefect-saturn) -->
 
-`dask-pytorch` is a Python package that makes it easy to train PyTorch models on dask clusters using distributed data paralllel.  The intended scope of the project is
+`dask-pytorch` is a Python package that makes it easy to train PyTorch models on Dask clusters using distributed data parallel.  The intended scope of the project is
 - bootstrapping PyTorch workers on top of a Dask cluster
-- Implementations of common PyTorch datasets on distributed data stores (like S3)
+- Using distributed data stores (e.g., S3) as normal PyTorch datasets
 - mechanisms for tracking and logging intermediate results, training statistics, and checkpoints.
 
-At this point, this library and examples provided are tailored to computer vision tasks, but this library is intended to be useful for any sort of PyTorch tasks. The only thing really specific to image processing is the `S3ImageFolder` dataset class. Implementing a PyTorch dataset (assuming map style random access) outside of images currently requires implementing `__getitem__(self, idx: number):` and `__len__(self):` We plan to add more varied examples for other use cases in the future, and welcome PRs extending functionality.
+At this point, this library and examples provided are tailored to computer vision tasks, but this library is intended to be useful for any sort of PyTorch tasks. The only thing really specific to image processing is the `S3ImageFolder` dataset class. Implementing a PyTorch dataset (assuming map style random access) outside of images currently requires implementing `__getitem__(self, idx: int):` and `__len__(self):` We plan to add more varied examples for other use cases in the future, and welcome PRs extending functionality.
 
 ## Typical non-dask workflow
 
@@ -52,7 +52,6 @@ count = 0
 for epoch in range(n_epochs):
     model.train()  # Set model to training mode
     for inputs, labels in train_loader:
-        dt = datetime.datetime.now().isoformat()
         inputs = inputs.to(device)
         labels = labels.to(device)
         outputs = model(inputs)
@@ -68,7 +67,7 @@ for epoch in range(n_epochs):
 
 ## Now on Dask
 
-with dask_pytorch and PyTorch distributed data parallel, we can train on multiple workers as follows:
+With dask_pytorch and PyTorch Distributed Data Parallel, we can train on multiple workers as follows:
 
 ### Loading Data
 Load the dataset from S3, and explicitly set the multiprocessing context (Dask defaults to spawn, but pytorch is generally configured to use fork)
@@ -84,7 +83,7 @@ train_loader = torch.utils.data.DataLoader(
 
 ### Training in Parallel
 
-Wrap the training loop in a function (and add metrics logging.  Not necessary, but very useful).  Convert the model into a `DDP` model which knows how to sync gradients together across workers.
+Wrap the training loop in a function (and add metrics logging.  Not necessary, but very useful).  Convert the model into a PyTorch Distributed Data Parallel (`DDP`) model which knows how to sync gradients together across workers.
 
 ```python
 import uuid
@@ -148,7 +147,7 @@ def run_transfer_learning(bucket, prefix, samplesize, n_epochs):
 
 In DDP, you create N workers, and the 0th worker is the "master", and coordinates the synchronization of buffers and gradients.  In SGD, gradients are normally averaged between all data points in a batch.  By running batches on multiple workers, and averaging the gradients, DDP enables you to run SGD with a much bigger batch size `(N * batch_size)`
 
-In PyTorch, you set some environment variables to configure the "master" host and port, and then you call `init_process_group` before you start training, and `destroy_process_group` when you are done training.  `dask-pytorch` handles this for you by designating 1 dask worker as the master pytorch worker, and calling `init_process_group` and `destroy_process_group` around the training function that you provide.
+`dask-pytorch` sets some environment variables to configure the "master" host and port, and then calls `init_process_group` before training, and calls `destroy_process_group` after training.  This is the same process normally done manually by the data scientist.
 
 ### Multi GPU machines
 `dask_cuda_worker` automatically rotates `CUDA_VISIBLE_DEVICES` for each worker it creates (typically one per GPU).  As a result, your PyTorch code should always start with the 0th GPU.
@@ -157,7 +156,9 @@ For example, if I have an 8 GPU machine, the 3rd worker will have `CUDA_VISIBLE_
 
 ## What else?
 
-`dask-pytorch` also implements an S3 based `ImageFolder`.  More distributed friendly datasets are planned.  `dask-pytorch`  Also implements a basic results aggregation framework so that it is easy to collect training metrics across different workers.  Currently, only `DaskResultsHandler` which leverages `dask` pub sub communication protocols is implemented, but an S3 based result handler is planned.
+`dask-pytorch` also implements an S3 based `ImageFolder`.  More distributed friendly datasets are planned.  `dask-pytorch`  also implements a basic results aggregation framework so that it is easy to collect training metrics across different workers.  Currently, only `DaskResultsHandler` which leverages [Dask pub-sub communication protocols][1] is implemented, but an S3 based result handler is planned.
+
+[1]:https://docs.dask.org/en/latest/futures.html#publish-subscribe
 
 ## Some Notes
 
