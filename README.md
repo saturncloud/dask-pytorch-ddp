@@ -103,7 +103,7 @@ def run_transfer_learning(bucket, prefix, samplesize, n_epochs, batch_size, num_
     model = DDP(model, device_ids=[0])
 
     criterion = nn.CrossEntropyLoss().cuda()
-    lr = 0.001 * dist.get_world_size()
+    lr = 0.001
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
     whole_dataset = S3ImageFolder(bucket, prefix, transform=transform)
     

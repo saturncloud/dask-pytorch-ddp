@@ -69,7 +69,7 @@ class S3ImageFolder(Dataset):
         self.target_transform = target_transform
 
     @classmethod
-    def __get_class(cls, path):
+    def __get_class__(cls, path):
         """
         parse the path to extract the class name
         """
