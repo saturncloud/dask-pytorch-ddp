@@ -8,9 +8,8 @@ with open("VERSION", "r") as f:
     version = f.read().strip()
 
 
-install_requires = ["dask", "distributed", "torch", "pillow"]
-testing_deps = ["black", "pytest", "pytest-cov", "flake8", "mypy"]
-
+install_requires = ["dask", "distributed", "pillow", "torch"]
+testing_deps = ["black", "flake8", "mypy", "pytest", "pytest-cov"]
 
 setup(
     name="dask-pytorch",

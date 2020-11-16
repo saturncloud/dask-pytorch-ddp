@@ -6,7 +6,7 @@ Currently using dask pub/sub, but will create an S3 version in the future.
 import uuid
 import logging
 import os
-from typing import List
+from typing import List, Optional
 from os.path import join, exists, dirname
 
 from distributed.pubsub import Pub, Sub
@@ -23,7 +23,7 @@ class DaskResultsHandler:
     jobs to the client.
     """
 
-    def __init__(self, pub_sub_key: str = None):
+    def __init__(self, pub_sub_key: Optional[str] = None):
         """
         pub_sub_key is an arbitrary string (topic) for the pub sub channel.
         It's a good idea to change it.  Sometimes old topics can get "clogged"
@@ -61,7 +61,7 @@ class DaskResultsHandler:
                         raise
             futures = result.not_done
 
-    def process_results(self, prefix: str, futures: List[Future], raise_errors: bool = True):
+    def process_results(self, prefix: str, futures: List[Future], raise_errors: bool = True) -> None:
         """
         Process the intermediate results:
         result objects will be dictionaries of the form {'path': path, 'data': data}

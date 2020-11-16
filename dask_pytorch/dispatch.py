@@ -3,7 +3,7 @@ This module contains the user-facing API to submit PyTorch jobs to a Dask cluste
 """
 
 import os
-from typing import List, Callable, Tuple
+from typing import List, Callable, Tuple, Any
 from dask.distributed import Client
 import torch.distributed as dist
 
@@ -47,8 +47,8 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
 
 
 def dispatch_with_ddp(
-    pytorch_function, master_addr, master_port, rank, world_size, backend = "nccl", *args, **kwargs
-):
+    pytorch_function: Callable, master_addr: str, master_port: int, rank: int, world_size: int, backend: str = "nccl", *args, **kwargs
+) -> Any:
     """
     runs a pytorch function, setting up torch.distributed before execution
     and tearing it down afterwards.
