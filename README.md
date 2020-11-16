@@ -95,7 +95,7 @@ import json
 key = uuid.uuid4().hex
 rh = DaskResultsHandler(key)
 
-def run_transfer_learning(bucket, prefix, samplesize, n_epochs):
+def run_transfer_learning(bucket, prefix, samplesize, n_epochs, batch_size, num_workers, train_sampler):
     worker_rank = int(dist.get_rank())
     device = torch.device(0)
     net = models.resnet18(pretrained=False)
@@ -105,7 +105,8 @@ def run_transfer_learning(bucket, prefix, samplesize, n_epochs):
     criterion = nn.CrossEntropyLoss().cuda()
     lr = 0.001 * dist.get_world_size()
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
-    whole_dataset = BOTOS3ImageFolder(bucket, prefix, transform=transform)
+    whole_dataset = S3ImageFolder(bucket, prefix, transform=transform)
+    
     train_loader = torch.utils.data.DataLoader(
         whole_dataset,
         sampler=train_sampler,
@@ -113,6 +114,7 @@ def run_transfer_learning(bucket, prefix, samplesize, n_epochs):
         num_workers=num_workers,
         multiprocessing_context=mp.get_context('fork')
     )
+    
     count = 0
     for epoch in range(n_epochs):
         # Each epoch has a training and validation phase
