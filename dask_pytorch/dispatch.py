@@ -37,6 +37,8 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
             idx,
             world_size,
             "nccl",
+            *args, 
+            **kwargs
         )
         for idx, w in enumerate(worker_keys)
     ]
