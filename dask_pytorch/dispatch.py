@@ -31,14 +31,12 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
     futures = [
         client.submit(
             dispatch_with_ddp,
-            pytorch_function = pytorch_function,
-            master_addr = host,
-            master_port = port,
-            rank = idx,
-            world_size = world_size,
-            *args,
-#             workers=[w],
-            **kwargs
+            pytorch_function,
+            host,
+            port,
+            idx,
+            world_size,
+            "nccl",
         )
         for idx, w in enumerate(worker_keys)
     ]
