@@ -69,7 +69,7 @@ class S3ImageFolder(Dataset):
         self.target_transform = target_transform
 
     @classmethod
-    def __get_class__(cls, path):
+    def _get_class(cls, path):
         """
         parse the path to extract the class name
         """
@@ -80,7 +80,7 @@ class S3ImageFolder(Dataset):
         get the nth (idx) image and label
         """
         path = self.all_files[idx]
-        label = self.class_to_idx[self.get_class(path)]
+        label = self.class_to_idx[self._get_class(path)]
         with tempfile.TemporaryFile() as f:
             f = _read_s3_fileobj(self.s3_bucket, path, f)
             img = _load_image_obj(f)
