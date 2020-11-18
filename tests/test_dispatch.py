@@ -1,4 +1,5 @@
 import os
+
 from unittest.mock import Mock, patch
 
 from dask_pytorch.dispatch import run, dispatch_with_ddp
@@ -32,39 +33,39 @@ def test_run():
 
     client.submit.assert_any_call(
         dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        0,
-        len(workers),
-        "nccl",
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=0,
+        world_size=len(workers),
+        backend="nccl",
     )
     client.submit.assert_any_call(
         dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        1,
-        len(workers),
-        "nccl",
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=1,
+        world_size=len(workers),
+        backend="nccl",
     )
     client.submit.assert_any_call(
         dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        2,
-        len(workers),
-        "nccl",
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=2,
+        world_size=len(workers),
+        backend="nccl",
     )
     client.submit.assert_any_call(
         dispatch_with_ddp,
-        fake_pytorch_func,
-        host,
-        23456,
-        3,
-        len(workers),
-        "nccl",
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=3,
+        world_size=len(workers),
+        backend="nccl",
     )
     assert output == fake_results
 
