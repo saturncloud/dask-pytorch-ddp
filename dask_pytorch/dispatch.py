@@ -48,10 +48,10 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
 
 def dispatch_with_ddp(
     pytorch_function: Callable,
-    master_addr: str,
-    master_port: int,
-    rank: int,
-    world_size: int,
+    master_addr: Any,
+    master_port: Any,
+    rank: Any,
+    world_size: Any,
     backend: str = "nccl",
     *args,
     **kwargs
