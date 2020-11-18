@@ -82,7 +82,7 @@ def test_dispatch_with_ddp():
             rank=1,
             world_size=10,
             backend="nccl",
-            args={"a", "b"},
+            args=("a", "b"),
             foo="bar",
         )
         assert environ["MASTER_ADDR"] == "master_addr"
@@ -93,4 +93,4 @@ def test_dispatch_with_ddp():
         dist.init_process_group.assert_called()
         dist.destroy_process_group.assert_called()
 
-        pytorch_func.assert_called_once_with("a", "b", foo="bar")
+        pytorch_func.assert_called_once_with('a', 'b', foo="bar")
