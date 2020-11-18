@@ -59,7 +59,13 @@ class S3ImageFolder(Dataset):
     An image folder that lives in S3.  Directories containing the image are classes.
     """
 
-    def __init__(self, s3_bucket: str, s3_prefix: str, transform: Optional[Callable] = None, target_transform: Optional[Callable] = None):
+    def __init__(
+        self,
+        s3_bucket: str,
+        s3_prefix: str,
+        transform: Optional[Callable] = None,
+        target_transform: Optional[Callable] = None,
+    ):
         self.s3_bucket = s3_bucket
         self.s3_prefix = s3_prefix
         self.all_files = _list_all_files(s3_bucket, s3_prefix)

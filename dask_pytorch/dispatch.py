@@ -31,23 +31,30 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
     futures = [
         client.submit(
             dispatch_with_ddp,
-            pytorch_function = pytorch_function,
-            master_addr = host,
-            master_port = port,
-            rank = idx,
-            world_size = world_size,
-            backend = "nccl",
-            *args, 
+            pytorch_function=pytorch_function,
+            master_addr=host,
+            master_port=port,
+            rank=idx,
+            world_size=world_size,
+            backend="nccl",
+            *args,
             **kwargs
         )
         for idx, w in enumerate(worker_keys)
     ]
-    
+
     return futures
 
 
 def dispatch_with_ddp(
-    pytorch_function: Callable, master_addr: str, master_port: int, rank: int, world_size: int, backend: str = "nccl", *args, **kwargs
+    pytorch_function: Callable,
+    master_addr: str,
+    master_port: int,
+    rank: int,
+    world_size: int,
+    backend: str = "nccl",
+    *args,
+    **kwargs
 ) -> Any:
     """
     runs a pytorch function, setting up torch.distributed before execution
