@@ -76,13 +76,14 @@ def test_dispatch_with_ddp():
         "dask_pytorch.dispatch.dist", return_value=Mock()
     ) as dist:
         dispatch_with_ddp(
-            pytorch_function=pytorch_func,
-            master_addr="master_addr",
-            master_port=2343,
-            rank=1,
-            world_size=10,
-            backend="nccl",
-            args=("a", "b"),
+            pytorch_func,
+            "master_addr",
+            2343,
+            1,
+            10,
+            "nccl",
+            "a",
+            "b",
             foo="bar",
         )
         assert environ["MASTER_ADDR"] == "master_addr"
@@ -93,4 +94,4 @@ def test_dispatch_with_ddp():
         dist.init_process_group.assert_called()
         dist.destroy_process_group.assert_called()
 
-        pytorch_func.assert_called_once_with('a', 'b', foo="bar")
+        pytorch_func.assert_called_once_with("a", "b", foo="bar")
