@@ -1,0 +1,36 @@
+name: Publish dask-pytorch to PyPI
+on:
+  release:
+    types:
+      - published
+jobs:
+  build-and-publish:
+    name: Build and publish dask-pytorch to PyPI
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install build dependencies
+      run: >-
+        python -m
+        pip install
+        setuptools
+        wheel
+        --upgrade
+        --user
+    - name: Build a binary wheel and a source tarball
+      run: >-
+        python
+        setup.py
+        sdist
+        bdist_wheel
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@v1.3.1
+      with:
+        # Password is set in GitHub UI to an API secret for pypi
+        user: __token__
+        password: ${{ secrets.pypi_api_key }}
+
