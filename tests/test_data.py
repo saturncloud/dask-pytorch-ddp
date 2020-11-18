@@ -9,7 +9,7 @@ def test_image_folder_constructor():
     with patch("dask_pytorch.data.get_all_files", return_value=fake_file_list):
         fake_transform = Mock()
         fake_target_transform = Mock()
-        folder = BOTOS3ImageFolder(
+        folder = S3ImageFolder(
             "fake-bucket", "fake-prefix/fake-prefix", fake_transform, fake_target_transform
         )
     assert folder.all_files == fake_file_list
@@ -22,14 +22,14 @@ def test_image_folder_constructor():
 def test_image_folder_len():
     fake_file_list = ["d/a.jpg", "c/b.jpg"]
     with patch("dask_pytorch.data.get_all_files", return_value=fake_file_list):
-        folder = BOTOS3ImageFolder("fake-bucket", "fake-prefix/fake-prefix")
+        folder = S3ImageFolder("fake-bucket", "fake-prefix/fake-prefix")
     assert len(folder) == 2
 
 
 def test_image_folder_getitem():
     fake_file_list = ["d/a.jpg", "c/b.jpg"]
     with patch("dask_pytorch.data.get_all_files", return_value=fake_file_list):
-        folder = BOTOS3ImageFolder("fake-bucket", "fake-prefix/fake-prefix")
+        folder = S3ImageFolder("fake-bucket", "fake-prefix/fake-prefix")
     with patch("dask_pytorch.data.read_s3_fileobj") as read_s3_fileobj, patch(
         "dask_pytorch.data.load_image_obj"
     ) as load_image_obj:
