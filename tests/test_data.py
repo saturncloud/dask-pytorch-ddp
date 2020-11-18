@@ -10,7 +10,10 @@ def test_image_folder_constructor():
         fake_transform = Mock()
         fake_target_transform = Mock()
         folder = S3ImageFolder(
-            "fake-bucket", "fake-prefix/fake-prefix", fake_transform, fake_target_transform
+            "fake-bucket",
+            "fake-prefix/fake-prefix",
+            fake_transform,
+            fake_target_transform,
         )
     assert folder.all_files == fake_file_list
     assert folder.classes == ["c", "d"]

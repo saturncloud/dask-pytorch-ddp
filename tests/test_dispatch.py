@@ -31,16 +31,40 @@ def test_run():
     output = run(client, fake_pytorch_func)
 
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 0, len(workers), backend='nccl'
+        dispatch_with_ddp,
+        fake_pytorch_func,
+        host,
+        23456,
+        0,
+        len(workers),
+        backend="nccl",
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 1, len(workers), backend='nccl'
+        dispatch_with_ddp,
+        fake_pytorch_func,
+        host,
+        23456,
+        1,
+        len(workers),
+        backend="nccl",
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 2, len(workers), backend='nccl'
+        dispatch_with_ddp,
+        fake_pytorch_func,
+        host,
+        23456,
+        2,
+        len(workers),
+        backend="nccl",
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 3, len(workers), backend='nccl'
+        dispatch_with_ddp,
+        fake_pytorch_func,
+        host,
+        23456,
+        3,
+        len(workers),
+        backend="nccl",
     )
     assert output == fake_results
 
@@ -51,14 +75,16 @@ def test_dispatch_with_ddp():
     with patch.object(os, "environ", {}) as environ, patch(
         "dask_pytorch.dispatch.dist", return_value=Mock()
     ) as dist:
-        dispatch_with_ddp(            
+        dispatch_with_ddp(
             pytorch_function=pytorch_func,
             master_addr="master_addr",
             master_port=2343,
             rank=1,
             world_size=10,
             backend="nccl",
-            "a", "b", foo="bar")
+            args={"a", "b"},
+            foo="bar",
+        )
         assert environ["MASTER_ADDR"] == "master_addr"
         assert environ["MASTER_PORT"] == "2343"
         assert environ["RANK"] == "1"
