@@ -23,6 +23,7 @@ jobs:
         include:
           - task: linting
           - task: unit-tests
+          - task: sdist
           - task: todo-checks
     steps:
       - name: Checkout repository
@@ -32,6 +33,7 @@ jobs:
         uses: s-weigand/setup-conda@v1
         with:
           python-version: 3.7
+
       - name: linting
         if: matrix.task == 'linting'
         shell: bash
@@ -44,6 +46,12 @@ jobs:
         run: |
           pip install --upgrade cloudpickle pytest pytest-cov responses
           make unit-tests
+      - name: test source distribution
+        if: matrix.task == 'sdist'
+        shell: bash
+        run: |
+          python setup.py sdist
+          pip install dist/dask-pytorch-$(cat VERSION).tar.gz
       - name: todo-checks
         if: matrix.task == 'todo-checks'
         shell: bash
