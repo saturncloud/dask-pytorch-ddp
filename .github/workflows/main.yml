@@ -1,0 +1,58 @@
+name: GitHub Actions
+
+# only run this workflow on new commits to main
+# or PRs into main
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+  schedule:
+    # Run every Monday morning at 11:00a UTC, 6:00a CST
+    - cron: '0 11 * * 1'
+
+jobs:
+  test:
+    name: ${{ matrix.task }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - task: linting
+          - task: unit-tests
+          - task: todo-checks
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+      - name: Set up Python 3.7
+        if: matrix.task != 'todo-checks'
+        uses: s-weigand/setup-conda@v1
+        with:
+          python-version: 3.7
+      - name: linting
+        if: matrix.task == 'linting'
+        shell: bash
+        run: |
+          pip install --upgrade black flake8 mypy pylint
+          make lint
+      - name: unit-tests
+        if: matrix.task == 'unit-tests'
+        shell: bash
+        run: |
+          pip install --upgrade cloudpickle pytest pytest-cov responses
+          make unit-tests
+      - name: todo-checks
+        if: matrix.task == 'todo-checks'
+        shell: bash
+        run: |
+          num_todos=$(git grep -i -E "TODO|FIXME" | wc -l)
+          echo "found ${num_todos} TODOs in code"
+          num_allowed=10
+          if [[ $num_todos -gt $num_allowed ]]; then
+            exit ${num_todos}
+          else
+            exit 0
+          fi
