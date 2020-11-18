@@ -61,7 +61,9 @@ class DaskResultsHandler:
                         raise
             futures = result.not_done
 
-    def process_results(self, prefix: str, futures: List[Future], raise_errors: bool = True) -> None:
+    def process_results(
+        self, prefix: str, futures: List[Future], raise_errors: bool = True
+    ) -> None:
         """
         Process the intermediate results:
         result objects will be dictionaries of the form {'path': path, 'data': data}

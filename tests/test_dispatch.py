@@ -1,4 +1,5 @@
 import os
+
 from unittest.mock import Mock, patch
 
 from dask_pytorch.dispatch import run, dispatch_with_ddp
@@ -31,16 +32,40 @@ def test_run():
     output = run(client, fake_pytorch_func)
 
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 0, len(workers), workers=[worker_keys[0]]
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=0,
+        world_size=len(workers),
+        backend="nccl",
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 1, len(workers), workers=[worker_keys[1]]
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=1,
+        world_size=len(workers),
+        backend="nccl",
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 2, len(workers), workers=[worker_keys[2]]
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=2,
+        world_size=len(workers),
+        backend="nccl",
     )
     client.submit.assert_any_call(
-        dispatch_with_ddp, fake_pytorch_func, host, 23456, 3, len(workers), workers=[worker_keys[3]]
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=3,
+        world_size=len(workers),
+        backend="nccl",
     )
     assert output == fake_results
 
@@ -51,7 +76,17 @@ def test_dispatch_with_ddp():
     with patch.object(os, "environ", {}) as environ, patch(
         "dask_pytorch.dispatch.dist", return_value=Mock()
     ) as dist:
-        dispatch_with_ddp(pytorch_func, "master_addr", 2343, 1, 10, "a", "b", foo="bar")
+        dispatch_with_ddp(
+            pytorch_func,
+            "master_addr",
+            2343,
+            1,
+            10,
+            "nccl",
+            "a",
+            "b",
+            foo="bar",
+        )
         assert environ["MASTER_ADDR"] == "master_addr"
         assert environ["MASTER_PORT"] == "2343"
         assert environ["RANK"] == "1"
