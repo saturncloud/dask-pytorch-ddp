@@ -1,7 +1,7 @@
 from unittest.mock import Mock, patch, ANY
 
 
-from dask_pytorch.data import BOTOS3ImageFolder
+from dask_pytorch.data import S3ImageFolder
 
 
 def test_image_folder_constructor():
