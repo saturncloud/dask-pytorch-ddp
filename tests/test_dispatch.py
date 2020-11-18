@@ -37,7 +37,7 @@ def test_run():
         23456,
         0,
         len(workers),
-        backend="nccl",
+        "nccl",
     )
     client.submit.assert_any_call(
         dispatch_with_ddp,
@@ -46,7 +46,7 @@ def test_run():
         23456,
         1,
         len(workers),
-        backend="nccl",
+        "nccl",
     )
     client.submit.assert_any_call(
         dispatch_with_ddp,
@@ -55,7 +55,7 @@ def test_run():
         23456,
         2,
         len(workers),
-        backend="nccl",
+        "nccl",
     )
     client.submit.assert_any_call(
         dispatch_with_ddp,
@@ -64,7 +64,7 @@ def test_run():
         23456,
         3,
         len(workers),
-        backend="nccl",
+        "nccl",
     )
     assert output == fake_results
 
