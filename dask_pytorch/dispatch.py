@@ -1,6 +1,6 @@
 """
 This module contains the user-facing API to submit PyTorch jobs to a Dask cluster
-"""
+""" 
 
 import os
 from typing import List, Callable, Tuple, Any
@@ -45,7 +45,8 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
 
     return futures
 
-
+# pylint: disable=keyword-arg-before-vararg
+# pylint: disable=too-many-arguments
 def dispatch_with_ddp(
     pytorch_function: Callable,
     master_addr: Any,
@@ -53,8 +54,8 @@ def dispatch_with_ddp(
     rank: Any,
     world_size: Any,
     backend: str = "nccl",
-    *args,
-    **kwargs
+    *args, 
+    **kwargs 
 ) -> Any:
     """
     runs a pytorch function, setting up torch.distributed before execution
