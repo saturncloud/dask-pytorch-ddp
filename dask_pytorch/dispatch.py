@@ -36,8 +36,8 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
             master_port = port,
             rank = idx,
             world_size = world_size,
-            *args,
-#             workers=[w],
+            backend = "nccl",
+            *args, 
             **kwargs
         )
         for idx, w in enumerate(worker_keys)
