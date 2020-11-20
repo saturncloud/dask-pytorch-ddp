@@ -34,9 +34,9 @@ setup(
     description="library for setting up torch DDP on a dask cluster",
     long_description=readme,
     long_description_content_type="text/markdown",
-    url="https://saturncloud.io/",
+    url="https://github.com/saturncloud/dask-pytorch",
     project_urls={
-        "Documentation": "http://docs.saturncloud.io",
+        "Documentation": "https://github.com/saturncloud/dask-pytorch",
         "Source": "https://github.com/saturncloud/dask-pytorch",
         "Issue Tracker": "https://github.com/saturncloud/dask-pytorch/issues",
     },
