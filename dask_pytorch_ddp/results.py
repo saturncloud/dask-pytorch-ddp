@@ -70,7 +70,7 @@ class DaskResultsHandler:
         As results come in, data will be written to f"prefix/{path}"
 
         prefix:  directory where you want results to be written
-        futures:  list of futures for your jobs (output of dask_pytorch.dispatch.run)
+        futures:  list of futures for your jobs (output of dask_pytorch_ddp.dispatch.run)
         raise_errors:  If any of the jobs fail, either raise an exception, or log it and continue.
         """
         for result in self._get_results(futures, raise_errors=raise_errors):

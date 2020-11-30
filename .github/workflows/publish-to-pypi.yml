@@ -1,11 +1,11 @@
-name: Publish dask-pytorch to PyPI
+name: Publish dask-pytorch-ddp to PyPI
 on:
   release:
     types:
       - published
 jobs:
   build-and-publish:
-    name: Build and publish dask-pytorch to PyPI
+    name: Build and publish dask-pytorch-ddp to PyPI
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v2

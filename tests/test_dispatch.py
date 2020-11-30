@@ -2,7 +2,7 @@ import os
 
 from unittest.mock import Mock, patch
 
-from dask_pytorch.dispatch import run, dispatch_with_ddp
+from dask_pytorch_ddp.dispatch import run, dispatch_with_ddp
 
 
 workers = {
@@ -74,7 +74,7 @@ def test_dispatch_with_ddp():
     pytorch_func = Mock()
 
     with patch.object(os, "environ", {}) as environ, patch(
-        "dask_pytorch.dispatch.dist", return_value=Mock()
+        "dask_pytorch_ddp.dispatch.dist", return_value=Mock()
     ) as dist:
         dispatch_with_ddp(
             pytorch_func,

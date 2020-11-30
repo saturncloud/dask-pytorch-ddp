@@ -22,13 +22,13 @@ lint:
 	#   * E0401: unable to import
 	#   * R0903: too few public methods
 	#   * W0212: access to protected member
-	pylint --disable=C0103,C0301,C0330,E0401,R0903,W0212 dask_pytorch/
+	pylint --disable=C0103,C0301,C0330,E0401,R0903,W0212 dask_pytorch_ddp/
 
 .PHONY: unit-tests
 unit-tests:
-	pip uninstall -y dask-pytorch
+	pip uninstall -y dask-pytorch-ddp
 	python setup.py develop
-	pytest --cov=dask_pytorch tests/
+	pytest --cov=dask_pytorch_ddp tests/
 
 .PHONY: test
 test: clean lint unit-tests
