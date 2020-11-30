@@ -1,4 +1,4 @@
-name: GitHub Actions
+nname: GitHub Actions
 
 # only run this workflow on new commits to main
 # or PRs into main
@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: |
           python setup.py sdist
-          pip install dist/dask-pytorch-$(cat VERSION).tar.gz
+          pip install dist/dask-pytorch-ddp-$(cat VERSION).tar.gz
       - name: todo-checks
         if: matrix.task == 'todo-checks'
         shell: bash
