@@ -1,4 +1,4 @@
-nname: GitHub Actions
+name: GitHub Actions
 
 # only run this workflow on new commits to main
 # or PRs into main
