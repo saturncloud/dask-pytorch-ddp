@@ -3,7 +3,7 @@ import pickle
 
 from pytest import raises
 
-from dask_pytorch.results import DaskResultsHandler
+from dask_pytorch_ddp.results import DaskResultsHandler
 from distributed.utils import TimeoutError  # pylint: disable=redefined-builtin
 
 
@@ -56,8 +56,8 @@ def fake_error_future(error):
 
 def test_get_results_retrieves_all_data():
     with patch.object(DaskResultsHandler, "_get_all") as _get_all, patch(
-        "dask_pytorch.results.wait"
-    ) as wait, patch("dask_pytorch.results.Sub"):
+        "dask_pytorch_ddp.results.wait"
+    ) as wait, patch("dask_pytorch_ddp.results.Sub"):
         _get_all.side_effect = [["a", "b"], ["c", "d", "e"], ["f", "g"]]
         wait.side_effect = [TimeoutError, mock_waiting_result()]
         result = DaskResultsHandler(None)
@@ -68,8 +68,8 @@ def test_get_results_retrieves_all_data():
 
 def test_get_results_throws_exceptions():
     with patch.object(DaskResultsHandler, "_get_all") as _get_all, patch(
-        "dask_pytorch.results.wait"
-    ) as wait, patch("dask_pytorch.results.Sub"):
+        "dask_pytorch_ddp.results.wait"
+    ) as wait, patch("dask_pytorch_ddp.results.Sub"):
         _get_all.side_effect = [["a", "b"], ["c", "d", "e"], ["f", "g"]]
         wait.side_effect = [
             mock_waiting_result(
@@ -84,8 +84,8 @@ def test_get_results_throws_exceptions():
 
 def test_get_results_masks_exceptions():
     with patch.object(DaskResultsHandler, "_get_all") as _get_all, patch(
-        "dask_pytorch.results.wait"
-    ) as wait, patch("dask_pytorch.results.Sub"):
+        "dask_pytorch_ddp.results.wait"
+    ) as wait, patch("dask_pytorch_ddp.results.Sub"):
         _get_all.side_effect = [["a", "b"], ["c", "d", "e"]]
         wait.side_effect = [
             mock_waiting_result(

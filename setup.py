@@ -12,7 +12,7 @@ install_requires = ["dask", "distributed", "pillow", "torch"]
 testing_deps = ["black", "flake8", "mypy", "pytest", "pytest-cov"]
 
 setup(
-    name="dask-pytorch",
+    name="dask-pytorch-ddp",
     version=version,
     maintainer="Saturn Cloud Developers",
     maintainer_email="open-source@saturncloud.io",
