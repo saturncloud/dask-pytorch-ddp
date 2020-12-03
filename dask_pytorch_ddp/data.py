@@ -34,13 +34,17 @@ def _list_all_files(bucket: str, prefix: str, s3_client=None) -> List[str]:
     return all_files
 
 
-def _read_s3_fileobj(bucket, path, fileobj):
+def _read_s3_fileobj(bucket, path, fileobj, anon = False):
     """
     read an obj from s3 to a file like object
     """
     import boto3  # pylint: disable=import-outside-toplevel
 
-    s3 = boto3.resource("s3")
+    if anon == True:
+        s3 = boto3.resource("s3", config=Config(signature_version=UNSIGNED))
+    else:
+        s3 = boto3.resource("s3")
+
     bucket = s3.Bucket(bucket)
     bucket.download_fileobj(path, fileobj)
     fileobj.seek(0)
@@ -65,6 +69,7 @@ class S3ImageFolder(Dataset):
         s3_prefix: str,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
+        anon: Optional[bool] = False,
     ):
         self.s3_bucket = s3_bucket
         self.s3_prefix = s3_prefix
@@ -73,6 +78,7 @@ class S3ImageFolder(Dataset):
         self.class_to_idx = {k: idx for idx, k in enumerate(self.classes)}
         self.transform = transform
         self.target_transform = target_transform
+        self.anon = anon
 
     @classmethod
     def _get_class(cls, path):
@@ -88,7 +94,7 @@ class S3ImageFolder(Dataset):
         path = self.all_files[idx]
         label = self.class_to_idx[self._get_class(path)]
         with tempfile.TemporaryFile() as f:
-            f = _read_s3_fileobj(self.s3_bucket, path, f)
+            f = _read_s3_fileobj(self.s3_bucket, path, f, self.anon)
             img = _load_image_obj(f)
         if self.transform is not None:
             img = self.transform(img)
