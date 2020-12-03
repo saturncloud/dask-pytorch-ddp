@@ -26,10 +26,11 @@ def _list_all_files(bucket: str, prefix: str, s3_client=None, anon=False) -> Lis
     from botocore import UNSIGNED  # pylint: disable=import-outside-toplevel
     from botocore.client import Config  # pylint: disable=import-outside-toplevel
 
-    if s3_client is None and anon is True:
-        s3_client = boto3.client("s3", config=Config(signature_version=UNSIGNED))
-    elif s3_client is None and anon is False:
-        s3_client = boto3.client("s3")
+    if s3_client is None
+        if anon:
+            s3_client = boto3.client("s3", config=Config(signature_version=UNSIGNED))
+        else:
+            s3_client = boto3.client("s3")
 
     paginator = s3_client.get_paginator("list_objects")
     all_files = []
