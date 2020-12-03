@@ -8,6 +8,8 @@ from os.path import basename, dirname
 from typing import List, Callable, Optional
 from PIL import Image
 from torch.utils.data import Dataset
+from botocore import UNSIGNED
+from botocore.client import Config
 
 
 """
