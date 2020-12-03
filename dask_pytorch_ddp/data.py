@@ -85,7 +85,7 @@ class S3ImageFolder(Dataset):
         self.s3_bucket = s3_bucket
         self.s3_prefix = s3_prefix
         self.anon = anon
-        self.all_files = _list_all_files(s3_bucket, s3_prefix, anon)
+        self.all_files = _list_all_files(s3_bucket, s3_prefix, anon=anon)
         self.classes = sorted({self._get_class(x) for x in self.all_files})
         self.class_to_idx = {k: idx for idx, k in enumerate(self.classes)}
         self.transform = transform
