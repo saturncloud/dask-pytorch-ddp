@@ -39,8 +39,8 @@ def _read_s3_fileobj(bucket, path, fileobj, anon=False):
     read an obj from s3 to a file like object
     """
     import boto3  # pylint: disable=import-outside-toplevel
-    from botocore import UNSIGNED
-    from botocore.client import Config
+    from botocore import UNSIGNED  # pylint: disable=import-outside-toplevel
+    from botocore.client import Config  # pylint: disable=import-outside-toplevel
 
     if anon:
         s3 = boto3.resource("s3", config=Config(signature_version=UNSIGNED))
@@ -64,6 +64,9 @@ class S3ImageFolder(Dataset):
     """
     An image folder that lives in S3.  Directories containing the image are classes.
     """
+
+    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-arguments
 
     def __init__(
         self,
