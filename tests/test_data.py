@@ -40,7 +40,7 @@ def test_image_folder_getitem():
         read_s3_fileobj.return_value = Mock()
         load_image_obj.return_value = Mock()
         val, label = folder[0]
-        read_s3_fileobj.assert_called_once_with("fake-bucket", fake_file_list[0], ANY)
+        read_s3_fileobj.assert_called_once_with("fake-bucket", fake_file_list[0], ANY, False)
         load_image_obj.assert_called_once_with(read_s3_fileobj())
         assert val == load_image_obj.return_value
         assert label == 1
