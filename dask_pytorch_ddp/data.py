@@ -18,14 +18,17 @@ https://github.com/dask/s3fs/issues/369
 """  # pylint: disable=pointless-string-statement
 
 
-def _list_all_files(bucket: str, prefix: str, s3_client=None) -> List[str]:
+def _list_all_files(bucket: str, prefix: str, s3_client=None, anon=False) -> List[str]:
     """
     Get list of all files from an s3 bucket matching a certain prefix
     """
     import boto3  # pylint: disable=import-outside-toplevel
 
-    if s3_client is None:
+    if s3_client is None and anon is True:
+        s3_client = boto3.client("s3", config=Config(signature_version=UNSIGNED))
+    elif s3_client is None and anon is False:
         s3_client = boto3.client("s3")
+
     paginator = s3_client.get_paginator("list_objects")
     all_files = []
     for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
