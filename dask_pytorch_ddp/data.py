@@ -23,9 +23,7 @@ def _list_all_files(bucket: str, prefix: str, s3_client=None) -> List[str]:
     Get list of all files from an s3 bucket matching a certain prefix
     """
     import boto3  # pylint: disable=import-outside-toplevel
-    from botocore import UNSIGNED
-    from botocore.client import Config
-    
+
     if s3_client is None:
         s3_client = boto3.client("s3")
     paginator = s3_client.get_paginator("list_objects")
@@ -41,6 +39,8 @@ def _read_s3_fileobj(bucket, path, fileobj, anon=False):
     read an obj from s3 to a file like object
     """
     import boto3  # pylint: disable=import-outside-toplevel
+    from botocore import UNSIGNED
+    from botocore.client import Config
 
     if anon:
         s3 = boto3.resource("s3", config=Config(signature_version=UNSIGNED))
