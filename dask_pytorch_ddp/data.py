@@ -23,6 +23,8 @@ def _list_all_files(bucket: str, prefix: str, s3_client=None, anon=False) -> Lis
     Get list of all files from an s3 bucket matching a certain prefix
     """
     import boto3  # pylint: disable=import-outside-toplevel
+    from botocore import UNSIGNED  # pylint: disable=import-outside-toplevel
+    from botocore.client import Config  # pylint: disable=import-outside-toplevel
 
     if s3_client is None and anon is True:
         s3_client = boto3.client("s3", config=Config(signature_version=UNSIGNED))
