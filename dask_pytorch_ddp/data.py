@@ -8,8 +8,6 @@ from os.path import basename, dirname
 from typing import List, Callable, Optional
 from PIL import Image
 from torch.utils.data import Dataset
-from botocore import UNSIGNED
-from botocore.client import Config
 
 
 """
@@ -25,7 +23,9 @@ def _list_all_files(bucket: str, prefix: str, s3_client=None) -> List[str]:
     Get list of all files from an s3 bucket matching a certain prefix
     """
     import boto3  # pylint: disable=import-outside-toplevel
-
+    from botocore import UNSIGNED
+    from botocore.client import Config
+    
     if s3_client is None:
         s3_client = boto3.client("s3")
     paginator = s3_client.get_paginator("list_objects")
