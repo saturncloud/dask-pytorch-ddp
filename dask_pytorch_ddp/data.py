@@ -34,7 +34,7 @@ def _list_all_files(bucket: str, prefix: str, s3_client=None) -> List[str]:
     return all_files
 
 
-def _read_s3_fileobj(bucket, path, fileobj, anon = False):
+def _read_s3_fileobj(bucket, path, fileobj, anon=False):
     """
     read an obj from s3 to a file like object
     """
