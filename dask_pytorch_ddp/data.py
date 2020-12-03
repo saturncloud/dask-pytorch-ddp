@@ -18,14 +18,20 @@ https://github.com/dask/s3fs/issues/369
 """  # pylint: disable=pointless-string-statement
 
 
-def _list_all_files(bucket: str, prefix: str, s3_client=None) -> List[str]:
+def _list_all_files(bucket: str, prefix: str, s3_client=None, anon=False) -> List[str]:
     """
     Get list of all files from an s3 bucket matching a certain prefix
     """
     import boto3  # pylint: disable=import-outside-toplevel
+    from botocore import UNSIGNED  # pylint: disable=import-outside-toplevel
+    from botocore.client import Config  # pylint: disable=import-outside-toplevel
 
     if s3_client is None:
-        s3_client = boto3.client("s3")
+        if anon:
+            s3_client = boto3.client("s3", config=Config(signature_version=UNSIGNED))
+        else:
+            s3_client = boto3.client("s3")
+
     paginator = s3_client.get_paginator("list_objects")
     all_files = []
     for page in paginator.paginate(Bucket=bucket, Prefix=prefix):
@@ -78,12 +84,12 @@ class S3ImageFolder(Dataset):
     ):
         self.s3_bucket = s3_bucket
         self.s3_prefix = s3_prefix
-        self.all_files = _list_all_files(s3_bucket, s3_prefix)
+        self.anon = anon
+        self.all_files = _list_all_files(s3_bucket, s3_prefix, anon)
         self.classes = sorted({self._get_class(x) for x in self.all_files})
         self.class_to_idx = {k: idx for idx, k in enumerate(self.classes)}
         self.transform = transform
         self.target_transform = target_transform
-        self.anon = anon
 
     @classmethod
     def _get_class(cls, path):
