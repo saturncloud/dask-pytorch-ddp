@@ -40,7 +40,7 @@ def _read_s3_fileobj(bucket, path, fileobj, anon=False):
     """
     import boto3  # pylint: disable=import-outside-toplevel
 
-    if anon == True:
+    if anon:
         s3 = boto3.resource("s3", config=Config(signature_version=UNSIGNED))
     else:
         s3 = boto3.resource("s3")
