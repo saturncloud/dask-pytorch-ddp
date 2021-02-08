@@ -19,7 +19,7 @@ def _get_worker_info(client: Client) -> Tuple[List[str], str]:
     return worker_keys, host
 
 
-def run(client: Client, pytorch_function: Callable, *args, **kwargs):
+def run(client: Client, pytorch_function: Callable, *args, backend: str = "nccl", **kwargs):
     """
     Dispatch a pytorch function over a dask cluster, and returns a list of futures
     for the resulting tasks
@@ -36,8 +36,9 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
             master_port=port,
             rank=idx,
             world_size=world_size,
-            backend="nccl",
             *args,
+            backend=backend,
+            workers=[w],
             **kwargs
         )
         for idx, w in enumerate(worker_keys)
@@ -46,7 +47,6 @@ def run(client: Client, pytorch_function: Callable, *args, **kwargs):
     return futures
 
 
-# pylint: disable=keyword-arg-before-vararg
 # pylint: disable=too-many-arguments
 def dispatch_with_ddp(
     pytorch_function: Callable,
@@ -54,8 +54,8 @@ def dispatch_with_ddp(
     master_port: Any,
     rank: Any,
     world_size: Any,
-    backend: str = "nccl",
     *args,
+    backend: str = "nccl",
     **kwargs
 ) -> Any:
     """

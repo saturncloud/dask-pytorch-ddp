@@ -38,6 +38,7 @@ def test_run():
         master_port=23456,
         rank=0,
         world_size=len(workers),
+        workers=[worker_keys[0]],
         backend="nccl",
     )
     client.submit.assert_any_call(
@@ -46,6 +47,7 @@ def test_run():
         master_addr=host,
         master_port=23456,
         rank=1,
+        workers=[worker_keys[1]],
         world_size=len(workers),
         backend="nccl",
     )
@@ -55,6 +57,7 @@ def test_run():
         master_addr=host,
         master_port=23456,
         rank=2,
+        workers=[worker_keys[2]],
         world_size=len(workers),
         backend="nccl",
     )
@@ -64,6 +67,7 @@ def test_run():
         master_addr=host,
         master_port=23456,
         rank=3,
+        workers=[worker_keys[3]],
         world_size=len(workers),
         backend="nccl",
     )
@@ -82,9 +86,9 @@ def test_dispatch_with_ddp():
             2343,
             1,
             10,
-            "nccl",
             "a",
             "b",
+            backend="nccl",
             foo="bar",
         )
         assert environ["MASTER_ADDR"] == "master_addr"
