@@ -80,7 +80,6 @@ def run(
                 rank=worker["global_rank"],
                 world_size=world_size,
                 *args,
-                local_rank=worker["local_rank"],
                 backend=backend,
                 workers=[worker["worker"]],
                 **kwargs
