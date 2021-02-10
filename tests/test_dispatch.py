@@ -74,6 +74,140 @@ def test_run():
     assert output == fake_results
 
 
+def test_run_with_local_rank_simple():
+    client = Mock()
+    client.scheduler_info = Mock(return_value={"workers": workers})
+
+    fake_pytorch_func = Mock()
+
+    fake_results = []
+    worker_keys = sorted(workers.keys())
+    for idx, worker in enumerate(worker_keys):
+        r = Mock()
+        r.result = Mock(return_value=idx)
+        fake_results.append(r)
+
+    client.submit = Mock(side_effect=fake_results)
+    output = run(client, fake_pytorch_func, pass_local_rank=True)
+
+    client.submit.assert_any_call(
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=0,
+        local_rank=0,
+        world_size=len(workers),
+        workers=[worker_keys[0]],
+        backend="nccl",
+    )
+    client.submit.assert_any_call(
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=1,
+        local_rank=0,
+        workers=[worker_keys[1]],
+        world_size=len(workers),
+        backend="nccl",
+    )
+    client.submit.assert_any_call(
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=2,
+        local_rank=0,
+        workers=[worker_keys[2]],
+        world_size=len(workers),
+        backend="nccl",
+    )
+    client.submit.assert_any_call(
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=3,
+        local_rank=0,
+        workers=[worker_keys[3]],
+        world_size=len(workers),
+        backend="nccl",
+    )
+    assert output == fake_results
+
+
+def test_run_with_local_rank_complex():
+    workers = {
+        "tcp://1.2.3.4:8786": {"host": "1.2.3.4"},
+        "tcp://1.2.3.4:8787": {"host": "1.2.3.4"},
+        "tcp://3.2.3.4:8786": {"host": "3.2.3.4"},
+        "tcp://3.2.3.4:8787": {"host": "3.2.3.4"},
+    }
+    host_name = sorted(workers.keys())[0]
+    host = workers[host_name]["host"]
+    client = Mock()
+    client.scheduler_info = Mock(return_value={"workers": workers})
+
+    fake_pytorch_func = Mock()
+
+    fake_results = []
+    worker_keys = sorted(workers.keys())
+    for idx, worker in enumerate(worker_keys):
+        r = Mock()
+        r.result = Mock(return_value=idx)
+        fake_results.append(r)
+
+    client.submit = Mock(side_effect=fake_results)
+    output = run(client, fake_pytorch_func, pass_local_rank=True)
+
+    client.submit.assert_any_call(
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=0,
+        local_rank=0,
+        world_size=len(workers),
+        workers=[worker_keys[0]],
+        backend="nccl",
+    )
+    client.submit.assert_any_call(
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=1,
+        local_rank=1,
+        workers=[worker_keys[1]],
+        world_size=len(workers),
+        backend="nccl",
+    )
+    client.submit.assert_any_call(
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=2,
+        local_rank=0,
+        workers=[worker_keys[2]],
+        world_size=len(workers),
+        backend="nccl",
+    )
+    client.submit.assert_any_call(
+        dispatch_with_ddp,
+        pytorch_function=fake_pytorch_func,
+        master_addr=host,
+        master_port=23456,
+        rank=3,
+        local_rank=1,
+        workers=[worker_keys[3]],
+        world_size=len(workers),
+        backend="nccl",
+    )
+    assert output == fake_results
+
+
 def test_dispatch_with_ddp():
     pytorch_func = Mock()
 
