@@ -108,10 +108,9 @@ class S3ImageFolder(Dataset):
             f = _read_s3_fileobj(self.s3_bucket, path, f, self.anon)
             img = _load_image_obj(f)
         if self.transform is not None:
-            img = self.transform(img)
-            img = img.cuda()
+            img = self.transform(img).cuda()
         if self.target_transform is not None:
-            label = self.target_transform(label)
+            label = self.target_transform(label).cuda()
         return img, label
 
     def __len__(self):
