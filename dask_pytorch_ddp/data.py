@@ -104,13 +104,15 @@ class S3ImageFolder(Dataset):
         """
         path = self.all_files[idx]
         label = self.class_to_idx[self._get_class(path)]
+        device = torch.device("cuda")
+
         with tempfile.TemporaryFile() as f:
             f = _read_s3_fileobj(self.s3_bucket, path, f, self.anon)
             img = _load_image_obj(f)
         if self.transform is not None:
-            img = self.transform(img).cuda()
+            img = self.transform(img).to(device)
         if self.target_transform is not None:
-            label = self.target_transform(label).cuda()
+            label = self.target_transform(label).to(device)
         return img, label
 
     def __len__(self):
