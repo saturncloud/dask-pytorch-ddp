@@ -8,7 +8,7 @@ from os.path import basename, dirname
 from typing import List, Callable, Optional
 from PIL import Image
 from torch.utils.data import Dataset
-
+import torch
 
 """
 In the following, we are explicitly avoiding s3fs because it does not behave well with
